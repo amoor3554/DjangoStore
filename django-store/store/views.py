@@ -23,11 +23,15 @@ def product(request, pid):
 def category(request, cid=None):
 
     cat = None
+    query = request.GET.get('query', cid)
     where = {}
 
     if cid:
         cat = Category.objects.get(pk=cid)
         where['category_id'] = cid
+
+    if query :
+        where['name__icontains'] = query
 
     products = Product.objects.filter(**where)
     paginator = Paginator(products, 9)
