@@ -2,13 +2,13 @@ from django.shortcuts import render
 from .models import Product, Slider
 
 def index(request):
-    product = Product.objects.select_related('author').filter(featured=True)
+    products = Product.objects.select_related('author').filter(featured=True)
     slider = Slider.objects.order_by('order')
     return render(
         request, 'index.html',
         {
-            'product': product,
-            'slider': slider,
+            'products': products,
+            'slides': slider,
         }
     )
 
