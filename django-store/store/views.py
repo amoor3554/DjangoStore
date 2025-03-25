@@ -15,13 +15,41 @@ def index(request):
 
 
 def product(request, pid):
+    product = Product.objects.get(pk=pid)
     return render(
-        request, 'product.html'
+        request, 'product.html',
+        {
+            'product': product,
+        }
     )
 
+def search_product(request):
+
+    query = request.GET.get('query', None)
+    category = request.GET.get('category', None)
+    products = Product.objects.all()
+
+    if query :
+        products = products.filter(name__icontains=query)
+
+    if category:
+        products = products.filter(cid= category)
+
+    paginator = Paginator(products, 9)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(
+        request, 'product.html',
+        {
+            'page_obj': page_obj,
+            'category': category,
+            'query': query,
+        }
+    )
 
 def category(request, cid=None):
-
+        
     cat = None
     query = request.GET.get('query', cid)
     where = {}
@@ -29,9 +57,6 @@ def category(request, cid=None):
     if cid:
         cat = Category.objects.get(pk=cid)
         where['category_id'] = cid
-
-    if query :
-        where['name__icontains'] = query
 
     products = Product.objects.filter(**where)
     paginator = Paginator(products, 9)
@@ -45,7 +70,6 @@ def category(request, cid=None):
             'category': cat,
         }
     )
-
 
 def cart(request):
     return render(

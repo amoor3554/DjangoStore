@@ -1,15 +1,17 @@
 {% load i18n %}
 
-<form action="{% url 'StoreCategory' %}" class="d-flex mx-auto">
+<form  class="d-flex mx-auto" method='GET'action="{% url 'StoreCategory'%}">
+    {% csrf_token %}
     <div class="input-group">
-        <input name="query" value="{{ request.GET.query }}" type="text" class="form-control" style="..."placeholder="{% trans 'Search Bar' %}"/>
+        <input name="query" value="{{ request.GET.query }}" type="search" class="form-control" style="..." placeholder="{% trans 'Search Bar' %}"/>
         <select name="category" class="form-control" style="...">
             <option value="">{% trans 'All Categories' %}</option>
             {% for category in categories %}
                 <option 
                 value="{{category.id}}"
                 {% if category.id|stringformat:'i' == request.GET.category %} selected {% endif %}
-                >{{category.name}}</option>
+                >{{category.name}}
+                {% empty %}{% trans "No resaults" %}</option>
             {% endfor %}
         </select>
         <button class="btn btn-primary" type="submit">
