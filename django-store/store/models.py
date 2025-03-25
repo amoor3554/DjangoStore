@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.sessions.models import Session
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -37,7 +38,9 @@ class Product(models.Model):
         return self.name
     
 
-
+class Cart(models.Model):
+    item = models.JSONField(default=dict)
+    session = models.ForeignKey(Session, on_delete=models.CASCADE)
 
 
 
@@ -67,3 +70,5 @@ class Slider(models.Model):
 
     def __str__(self):
         return self.title
+    
+

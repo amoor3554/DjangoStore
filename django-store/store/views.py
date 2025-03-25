@@ -1,6 +1,8 @@
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.utils.translation import gettext as trans
 from django.core.paginator import Paginator
-from .models import Product, Slider, Category
+from .models import Product, Slider, Category, Cart
 
 def index(request):
     products = Product.objects.select_related('author').filter(featured=True)
@@ -75,6 +77,50 @@ def cart(request):
     return render(
         request, 'cart.html'
     )
+
+def cart_update(request, pid=None):
+
+    if not request.session.session_key:
+        request.session.create()
+    
+    session_id = request.session.session_key
+    cart_model = Cart.objects.filter(session=session_id).last()
+    if cart_model is None:
+        cart_model = Cart.objects.create(session_id=session_id, item=[pid])
+    elif pid not in cart_model.item:
+        cart_model.item.append(pid)
+        cart_model.save()
+
+    return JsonResponse(
+        {
+            'message': trans('Item added to cart'),
+            'items_count': len(cart_model.item),
+        }
+    )
+
+def cart_remove(request, pid=None):
+    session_id = request.session.session_key
+
+    if not session_id:
+        return JsonResponse({})
+
+    cart_model = Cart.objects.filter(session=session_id).last()
+    if cart_model is None:
+        return JsonResponse({})
+    
+    elif pid in cart_model.item:
+        cart_model.item.remove(pid)
+        cart_model.save()
+
+    return JsonResponse(
+        {
+            'message': trans('Item removed from the cart'),
+            'items_count': len(cart_model.item),
+        }
+    )
+
+
+
 
 
 def check_out(request):
