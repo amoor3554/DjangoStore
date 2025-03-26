@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.utils.translation import gettext as trans
 from django.core.paginator import Paginator
@@ -29,26 +29,31 @@ def search_product(request):
 
     query = request.GET.get('query', None)
     category = request.GET.get('category', None)
-    products = Product.objects.all()
+    products_all = Product.objects.all()
+    where = {}
 
-    if query :
-        products = products.filter(name__icontains=query)
+    if query or category:
+        if query:
+            where = {'name__icontains': query}
+        if category:
+            where = {'category_id': category}
+            
+        products = products_all.filter(**where)
 
-    if category:
-        products = products.filter(cid= category)
+        paginator = Paginator(products, 9)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
 
-    paginator = Paginator(products, 9)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    return render(
-        request, 'product.html',
-        {
-            'page_obj': page_obj,
-            'category': category,
-            'query': query,
-        }
-    )
+        return render(
+            request, 'common/search_product.html',
+            {
+                'page_obj': page_obj,
+                'category': category,
+                'query': query,
+            }
+        )
+    else:
+        return redirect('StoreCategory')
 
 def category(request, cid=None):
         
