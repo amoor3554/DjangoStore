@@ -1,13 +1,19 @@
 from django.shortcuts import render, redirect
 from .forms import UserInfoForm
-from store.models import Product, Cart, Order, OrderProduct
+from store.models import Product, Cart, Order, OrderProduct, Transaction
+from .models import Transaction, PaymentMethod
 from django.core.mail import send_mail, get_connection
 from django.template.loader import render_to_string
+import math
 
 
-def make_order(request):
-    if request.method != 'POST':
-        return redirect('StoreCheckout')
+def stripe_transaction(request):
+    transaction = make_transaction(request, PaymentMethod.Stripe)
+
+def paypal_transaction(request):
+    transaction = make_transaction(request, PaymentMethod.PayPal)
+
+def make_transaction(request, pm):
 
     form = UserInfoForm(request.POST)
     if form.is_valid():
@@ -19,19 +25,18 @@ def make_order(request):
             total += product.price
 
         if total <= 0:
-            return redirect('StoreCart')
+            return None
         
-        order = Order.objects.create(customer=form.cleaned_data,total=total)
+        return Transaction.objects.create(
+            customer=form.cleaned_data,
+            total=total,
+            session=request.session.session_key,
+            payment_method=pm,
+            items = cart.item,
+            amount= math.ceil(total),
+            )
 
-        for product in products:
-            OrderProduct.objects.create(product_id=product.id,order=order, price=product.price)
-        
-        send_order_mail(order=order, products=products)
-        cart.delete()
-        return redirect('StoreOrderSuccess')
-    else:
-        return redirect('StoreCheckout')
-    
+
 
 def send_order_mail(order, products):
     msg_html = render_to_string('emails/order.html',

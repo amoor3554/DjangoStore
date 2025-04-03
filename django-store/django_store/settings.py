@@ -151,3 +151,7 @@ SITE_URL = 'http://127.0.0.1:8000/'
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
+
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51R9nuzQRHgr09PFmJas3eAjmp1UFcd0jDhsOihprE3v1HMLM1Z6iaBrr697tFeQzJo4wGzZg008YOxQd18KXTocL00Nxle7gCF'
+STRIPE_SECRET_KEY = 'sk_test_51R9nuzQRHgr09PFm6msj8mMQrsxoxJfzv9xozYdet1w2vhv6ZcQt8W3J14uEqgO6YXiWdq3QvFA5t0HORjgFNuXd00DI2NG3cP'
+
