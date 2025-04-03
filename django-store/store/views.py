@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.utils.translation import gettext as trans
 from django.core.paginator import Paginator
 from .models import Product, Slider, Category, Cart
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 
 def index(request):
     products = Product.objects.select_related('author').filter(featured=True)
@@ -54,7 +56,7 @@ def search_product(request):
         )
     else:
         return redirect('StoreCategory')
-
+    
 def category(request, cid=None):
         
     cat = None
@@ -138,3 +140,5 @@ def check_out_complete(request):
     return render(
         request, 'check_out_complete.html'
     )
+
+

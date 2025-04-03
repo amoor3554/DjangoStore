@@ -139,3 +139,15 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = 'media/'
 
 
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_HOST_USER = 'f73c57ad7e6649'
+EMAIL_HOST_PASSWORD = 'b8bd177a9f4af9'
+EMAIL_PORT = '2525'
+EMAIL_TIMEOUT = 30
+EMAIL_USE_TLS = True 
+EMAIL_USE_SSL = False 
+
+SITE_URL = 'http://127.0.0.1:8000/'
+
+import logging
+logging.basicConfig(level=logging.DEBUG)
