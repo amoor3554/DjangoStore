@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from django.db.models import Q
 from django.utils.translation import gettext as trans
 from django.core.paginator import Paginator
 from .models import Product, Slider, Category, Cart
@@ -31,31 +32,31 @@ def search_product(request):
 
     query = request.GET.get('query', None)
     category = request.GET.get('category', None)
-    products_all = Product.objects.all()
-    where = {}
 
-    if query or category:
-        if query:
-            where = {'name__icontains': query}
-        if category:
-            where = {'category_id': category}
-            
-        products = products_all.filter(**where)
-
-        paginator = Paginator(products, 9)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-
-        return render(
-            request, 'common/search_product.html',
-            {
-                'page_obj': page_obj,
-                'category': category,
-                'query': query,
-            }
-        )
-    else:
+    if not (query or category):
         return redirect('StoreCategory')
+    
+    filters = Q(name__icontains=query) | Q(description__icontains=query)
+
+    if category:
+        filters &= Q(category_id=category) 
+    
+    products = Product.objects.filter(filters)
+
+    paginator = Paginator(products, 9)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(
+        request, 'common/search_product.html',
+        {
+            'page_obj': page_obj,
+            'category': category,
+            'query': query,
+        }
+    )
+
+        
     
 def category(request, cid=None):
         
@@ -127,18 +128,5 @@ def cart_remove(request, pid=None):
     )
 
 
-
-
-
-def check_out(request):
-    return render(
-        request, 'check_out.html'
-    )
-
-
-def check_out_complete(request):
-    return render(
-        request, 'check_out_complete.html'
-    )
 
 
