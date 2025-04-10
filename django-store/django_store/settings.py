@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'paypal.standard.ipn',
     'store',
     'oprations',
+    'reports',
 ]
 
 MIDDLEWARE = [
